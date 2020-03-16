@@ -10,11 +10,22 @@ module.exports = {
    * webpack配置,see https://github.com/vuejs/vue-cli/blob/dev/docs/webpack.md
    **/
   chainWebpack: (config) => {
+    const svgRule = config.module.rule("svg");
+    svgRule.uses.clear();
+    svgRule
+      .use("svg-sprite-loader")
+      .loader("svg-sprite-loader")
+      .options({
+        symbolId: "icon-[name]",
+        include: ["./src/icons"]
+      });
+
   },
   configureWebpack: (config) => {
     config.resolve = { // 配置解析别名
       extensions: ['.js', '.json', '.vue'],
       alias: {
+        'vue': 'vue/dist/vue.js',
         '@': path.resolve(__dirname, './src'),
         '@c': path.resolve(__dirname, './src/components'),
       }
@@ -36,7 +47,7 @@ module.exports = {
        * 如果你在学习过程中，发现package.json中的，"node-sass"：4.x以上、"sass-loader": "^8.x"，都比视频中的版本高，请查看以下网址作相应修改；
        * http://www.web-jshtml.cn/?t/13.html
        */
-      scss: { 
+      scss: {
         prependData: `@import "./src/styles/main.scss";`
       }
     },
@@ -58,7 +69,15 @@ module.exports = {
     https: false, // 编译失败时刷新页面
     hot: true, // 开启热加载
     hotOnly: false,
-    proxy: null, // 设置代理
+    proxy: {
+      '/devApi': {
+        target: 'http://www.web-jshtml.cn/productapi/token', //API服务器的地址
+        changeOrigin: true,
+        pathRewrite: {
+          '^/devApi': ''
+        }
+      }
+    }, // 设置代理
     overlay: { // 全屏模式下是否显示脚本错误
       warnings: true,
       errors: true
